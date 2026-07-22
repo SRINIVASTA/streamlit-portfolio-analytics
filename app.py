@@ -1,3 +1,4 @@
+# app.py (Renders charts & filters analytics data grids)
 import streamlit as st
 import pandas as pd
 
