@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import traceback  # Used to print out exact line failures
 
 # Set up browser layout frame window options
 st.set_page_config(
@@ -16,18 +15,19 @@ st.markdown("---")
 # SECURE INGESTION: Fetches your shared sheet CSV download URL hidden in Streamlit secrets
 try:
     if "analytics_sheet_csv_url" not in st.secrets:
-        raise KeyError("The secret key 'analytics_sheet_csv_url' is missing entirely from your Streamlit Secrets panel.")
+        st.error("🔒 Security Access Denied: Missing valid data stream configuration credentials.")
+        st.stop()
 
     target_sheet_url = st.secrets["analytics_sheet_csv_url"]
     
     # Download the live log stream straight from Google Sheets into a DataFrame
     df = pd.read_csv(target_sheet_url)
     
-    # Check if the sheet is completely empty or missing columns
+    # Check if the sheet contains the necessary tracking keys
     required_columns = ["Timestamp", "App_Name", "Session_ID", "User_Fingerprint"]
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Google Sheet is missing these exact columns or has a typo: {missing_cols}. Current columns found: {list(df.columns)}")
+    if not all(col in df.columns for col in required_columns):
+        st.error("📊 Spreadsheet Layout Mismatch: Please verify your Google Sheet column headers match exactly.")
+        st.stop()
 
     # Convert timestamps cleanly
     df["Timestamp"] = pd.to_datetime(df["Timestamp"])
@@ -40,7 +40,7 @@ try:
     
     st.markdown("---")
     
-    # 2. Graphical Traffic Split Charts Row (FIXED: Added '2' columns)
+    # 2. Graphical Traffic Split Charts Row
     left_col, right_col = st.columns(2)
     
     if not df.empty:
@@ -70,13 +70,6 @@ try:
     else:
         st.dataframe(pd.DataFrame(columns=required_columns), use_container_width=True, hide_index=True)
 
-except Exception as e:
-    # 🔴 DIAGNOSTIC OVERRIDE: Shows you the exact technical issue on screen
+except Exception:
     st.error("🔒 Security Access Denied: Missing valid data stream configuration credentials.")
     st.info("Analytics metrics are restricted exclusively to the workspace manager administrator via Streamlit Secrets.")
-    
-    st.markdown("---")
-    st.subheader("🛠️ Technical Debugging Console (Admin View)")
-    st.warning(f"**Error Details:** {str(e)}")
-    with st.expander("View Full Code Error Traceback"):
-        st.code(traceback.format_exc())
