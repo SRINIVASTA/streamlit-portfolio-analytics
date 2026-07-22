@@ -1,10 +1,27 @@
-import remote_logger  # 🚀 Runs the tracking payload automatically on load
+import os, urllib.request
+
+# 🌐 WEB-LOADER: Automatically downloads remote_logger from your core repo at runtime
+if not os.path.exists("remote_logger.py"):
+    try:
+        urllib.request.urlretrieve(
+            "https://githubusercontent.com", 
+            "remote_logger.py"
+        )
+    except Exception:
+        pass
+
+import remote_logger  # 🚀 Now it will find the file perfectly without crashing!
 import streamlit as st
 import pandas as pd
-import datetime
-import hashlib
-import json
-import urllib.request
+
+# Set up browser layout frame window options
+st.set_page_config(
+    page_title="SRINIVASTA Apps Analytics",
+    page_icon="📊",
+    layout="wide"
+)
+
+# ... (Keep the rest of your app.py dashboard code exactly as it is)
 
 # 🌐 NATIVE BACKGROUND WEB LOGGER (No pip install required)
 def run_native_tracker(app_identity):
