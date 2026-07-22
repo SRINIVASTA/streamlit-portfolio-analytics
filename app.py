@@ -1,30 +1,12 @@
-import os, urllib.request
-
-# 🌐 WEB-LOADER: Automatically downloads remote_logger from your core repo at runtime
-if not os.path.exists("remote_logger.py"):
-    try:
-        urllib.request.urlretrieve(
-            "https://githubusercontent.com", 
-            "remote_logger.py"
-        )
-    except Exception:
-        pass
-
-import remote_logger  # 🚀 Now it will find the file perfectly without crashing!
 import streamlit as st
 import pandas as pd
+import datetime
+import hashlib
+import json
+import urllib.request
 
-# Set up browser layout frame window options
-st.set_page_config(
-    page_title="SRINIVASTA Apps Analytics",
-    page_icon="📊",
-    layout="wide"
-)
-
-# ... (Keep the rest of your app.py dashboard code exactly as it is)
-
-# 🌐 NATIVE BACKGROUND WEB LOGGER (No pip install required)
-def run_native_tracker(app_identity):
+# 🌐 NATIVE BACKGROUND TELEMETRY LOGGER (Embedded directly to prevent import errors)
+def run_portfolio_tracker(app_identity):
     current_host = st.context.headers.get("host", "").lower()
     if "streamlit" not in current_host and "localhost" not in current_host:
         return 
@@ -58,11 +40,11 @@ def run_native_tracker(app_identity):
         except Exception:
             pass
 
-# 🚀 Execute the tracker instantly on Line 41 using its own name
-run_native_tracker("streamlit-portfolio-analytics")
+# 🚀 Execute the background tracker instantly on startup
+run_portfolio_tracker("streamlit-portfolio-analytics")
 
 
-# 📊 Renders charts & filters analytics data grids
+# 📊 DASHBOARD INTERACTION ENGINE RENDER
 st.set_page_config(
     page_title="SRINIVASTA Apps Analytics",
     page_icon="📊",
@@ -79,15 +61,20 @@ try:
         st.stop()
 
     target_sheet_url = st.secrets["analytics_sheet_csv_url"]
+    
+    # Download the live log stream straight from Google Sheets into a DataFrame
     df = pd.read_csv(target_sheet_url)
     
+    # Check if the sheet contains the necessary tracking keys
     required_columns = ["Timestamp", "App_Name", "Session_ID", "User_Fingerprint"]
     if not all(col in df.columns for col in required_columns):
         st.error("📊 Spreadsheet Layout Mismatch: Please verify your Google Sheet column headers match exactly.")
         st.stop()
 
+    # Convert timestamps cleanly
     df["Timestamp"] = pd.to_datetime(df["Timestamp"])
     
+    # 1. High-Level KPI Summary Metrics Row
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Page Views Across Portfolio", f"{len(df):,}")
     col2.metric("Unique Viewers (Fingerprints) Identified", f"{df['User_Fingerprint'].nunique():,}")
@@ -95,7 +82,9 @@ try:
     
     st.markdown("---")
     
+    # 2. Graphical Traffic Split Charts Row
     left_col, right_col = st.columns(2)
+    
     if not df.empty:
         with left_col:
             st.subheader("📈 Traffic Load Distribution by Repository")
@@ -110,10 +99,11 @@ try:
                 hide_index=True
             )
     else:
-        st.info("The Google Sheet connected successfully, but it has no traffic rows yet!")
+        st.info("The Google Sheet connected successfully, but it has no traffic rows yet! Visit one of your 60+ apps to log the first visit.")
         
     st.markdown("---")
     
+    # 3. Comprehensive Raw Activity Stream (Latest Hits First)
     st.subheader("🕒 Live Global Activity Stream")
     if not df.empty:
         df_sorted = df.sort_values(by="Timestamp", ascending=False)
@@ -124,3 +114,4 @@ try:
 
 except Exception:
     st.error("🔒 Security Access Denied: Missing valid data stream configuration credentials.")
+    st.info("Analytics metrics are restricted exclusively to the workspace manager administrator via Streamlit Secrets.")
