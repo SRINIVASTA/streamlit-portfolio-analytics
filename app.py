@@ -1,3 +1,4 @@
+import remote_logger  # 🚀 Runs the tracking payload automatically on load
 import streamlit as st
 import pandas as pd
 import datetime
