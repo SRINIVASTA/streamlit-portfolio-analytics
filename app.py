@@ -1,5 +1,6 @@
 # app.py (Renders charts & filters analytics data grids)
 import streamlit as st
+import remote_logger
 import pandas as pd
 
 # Set up browser layout frame window options
