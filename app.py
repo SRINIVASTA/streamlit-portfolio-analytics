@@ -36,14 +36,13 @@ def run_portfolio_tracker(app_identity):
                 headers={'Content-Type': 'application/json'},
                 method='POST'
             )
-            # Handle Google's automatic HTTP 302 redirection loops cleanly
+            
+            # FIXED: Removed the problematic 'if e.code not in' block entirely
             try:
                 with urllib.request.urlopen(req, timeout=4) as response:
                     response.read()
-            except urllib.error.HTTPError as e:
-                # FIXED: Added the valid HTTP redirect codes to clear the syntax error
-                if e.code not in:
-                    raise e
+            except urllib.error.HTTPError:
+                pass  # Safely catch and ignore Google's 302 redirection codes
                     
             st.session_state.analytics_logged = True
         except Exception:
