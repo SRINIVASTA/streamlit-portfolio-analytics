@@ -31,7 +31,7 @@ def run_portfolio_tracker(app_identity):
 
             # Direct fallback link pasted straight into the network request dispatcher
             req = urllib.request.Request(
-                "https://google.com", 
+                "st.secrets["google_analytics_url"],", 
                 data=json.dumps(payload).encode('utf-8'), 
                 headers={'Content-Type': 'application/json'},
                 method='POST'
@@ -64,7 +64,7 @@ st.caption("Real-time telemetry and user fingerprints across your 60+ deployed a
 st.markdown("---")
 
 # 🔐 HARDCODED LINK DIRECTIVES (Bypasses Streamlit Cloud Secrets bugs)
-target_sheet_url = "https://google.com"
+target_sheet_url = st.secrets["analytics_sheet_csv_url"]
 
 # 📥 STEP 2: Fetch and Ingest CSV Data Safely
 try:
