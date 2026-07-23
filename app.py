@@ -31,7 +31,7 @@ def run_portfolio_tracker(app_identity):
 
             # Direct fallback link pasted straight into the network request dispatcher
             req = urllib.request.Request(
-                "st.secrets["google_analytics_url"],", 
+                st.secrets["google_analytics_url"], 
                 data=json.dumps(payload).encode('utf-8'), 
                 headers={'Content-Type': 'application/json'},
                 method='POST'
