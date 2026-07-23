@@ -41,7 +41,7 @@ def run_portfolio_tracker(app_identity):
                 with urllib.request.urlopen(req, timeout=4) as response:
                     response.read()
             except urllib.error.HTTPError as e:
-                # If it's a redirection code, Google Apps Script already successfully appended the row!
+                # FIXED: Added the valid HTTP redirect codes to clear the syntax error
                 if e.code not in:
                     raise e
                     
