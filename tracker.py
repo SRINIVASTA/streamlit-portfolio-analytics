@@ -4,22 +4,18 @@ import uuid
 import json
 
 def track_all_apps(app_name: str):
-    """Universal tracker using the secure GA4 Measurement Protocol."""
+    """Universal tracker pulling secrets securely from Streamlit Cloud memory."""
     try:
-        # 1. CREDENTIALS (Updated with your real Measurement ID!)
-        MASTER_GA_ID = "G-K81T36LYB7"  
+        # 1. READ SECRETS DYNAMICALLY FROM STREAMLIT ENVIRONMENT
+        # This completely hides your API key from public GitHub eyes
+        MASTER_GA_ID = st.secrets["GA_MEASUREMENT_ID"]
+        API_SECRET = st.secrets["GA_API_SECRET"]
         
-        # Make sure to generate and paste your API secret from your GA4 dashboard settings here
-        API_SECRET = "YOUR_API_SECRET_HERE" 
-        
-        # 2. Establish a unique session ID
         if "analytics_user_id" not in st.session_state:
             st.session_state.analytics_user_id = str(uuid.uuid4())
         
-        # 3. Secure Production Collection Endpoint
         url = f"https://google-analytics.com{MASTER_GA_ID}&api_secret={API_SECRET}"
         
-        # 4. Correctly formatted JSON payload required for Server-Side events
         payload = {
             "client_id": st.session_state.analytics_user_id,
             "events": [{
@@ -33,7 +29,6 @@ def track_all_apps(app_name: str):
             }]
         }
         
-        # 5. POST the data payload straight to the server
         requests.post(url, data=json.dumps(payload), headers={'Content-Type': 'application/json'}, timeout=3)
     except Exception:
         pass
