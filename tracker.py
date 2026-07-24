@@ -1,29 +1,39 @@
 import streamlit as st
 import requests
 import uuid
+import json
 
 def track_all_apps(app_name: str):
-    """
-    Universal tracker for all 50+ apps.
-    Uses the exact same Measurement ID across your entire network.
-    """
+    """Universal tracker using the secure GA4 Measurement Protocol."""
     try:
-        # Centralized Measurement ID - change this ONCE to apply to all 50+ apps
-        MASTER_GA_ID = "G-K81T36LYB7"  # Replace with your actual G- ID
+        # 1. CREDENTIALS (Updated with your real Measurement ID!)
+        MASTER_GA_ID = "G-K81T36LYB7"  
         
+        # Make sure to generate and paste your API secret from your GA4 dashboard settings here
+        API_SECRET = "YOUR_API_SECRET_HERE" 
+        
+        # 2. Establish a unique session ID
         if "analytics_user_id" not in st.session_state:
             st.session_state.analytics_user_id = str(uuid.uuid4())
         
-        url = "https://google-analytics.com"
-        params = {
-            "v": "2",
-            "tid": MASTER_GA_ID,
-            "cid": st.session_state.analytics_user_id,
-            "en": "page_view",
-            "ep.page_title": app_name,  # Captures which specific app was opened
-            "ep.page_location": f"https://streamlit.io{app_name.lower().replace(' ', '-')}"
+        # 3. Secure Production Collection Endpoint
+        url = f"https://google-analytics.com{MASTER_GA_ID}&api_secret={API_SECRET}"
+        
+        # 4. Correctly formatted JSON payload required for Server-Side events
+        payload = {
+            "client_id": st.session_state.analytics_user_id,
+            "events": [{
+                "name": "page_view",
+                "params": {
+                    "page_title": app_name,
+                    "page_location": f"https://streamlit.io{app_name.lower().replace(' ', '-')}",
+                    "engagement_time_msec": "1000",
+                    "session_id": st.session_state.analytics_user_id
+                }
+            }]
         }
         
-        requests.post(url, params=params, timeout=2)
+        # 5. POST the data payload straight to the server
+        requests.post(url, data=json.dumps(payload), headers={'Content-Type': 'application/json'}, timeout=3)
     except Exception:
         pass
